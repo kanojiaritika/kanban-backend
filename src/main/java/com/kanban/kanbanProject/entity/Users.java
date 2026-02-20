@@ -1,9 +1,17 @@
 package com.kanban.kanbanProject.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 public class Users {
 
@@ -17,23 +25,5 @@ public class Users {
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY )
     private List<Boards> boards;
-
-    // Getters
-    public String getEmailId() {
-        return emailId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-    // Setters
-    public void setEmailId(String emailId) {
-        this.emailId = emailId;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
 
 }

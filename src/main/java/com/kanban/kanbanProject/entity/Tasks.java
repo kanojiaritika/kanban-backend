@@ -2,9 +2,11 @@ package com.kanban.kanbanProject.entity;
 
 import com.kanban.kanbanProject.TaskStatus;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
+@Data
 @Entity
 public class Tasks {
 
