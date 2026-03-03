@@ -22,6 +22,7 @@ public class Tasks {
 
     private LocalDateTime updatedOn;
 
+    @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
     @ManyToOne

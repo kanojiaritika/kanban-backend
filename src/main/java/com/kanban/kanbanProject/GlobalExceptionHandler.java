@@ -20,9 +20,20 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IncorrectDetails.class)
-    public ResponseEntity<?> handleIncorrectDetails(IncorrectDetails exception) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("error", exception.getMessage()));
+    public ResponseEntity<?> handleBadRequest(IncorrectDetails ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleRuntime(RuntimeException ex) {
+        return ResponseEntity.status(400)
+                .body(Map.of("message", "Something went wrong"));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleGeneral(Exception ex) {
+        return ResponseEntity.status(500)
+                .body(Map.of("message", "Internal server error"));
     }
 }
