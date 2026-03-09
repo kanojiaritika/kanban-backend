@@ -1,5 +1,6 @@
 package com.kanban.kanbanProject.service;
 
+import com.kanban.kanbanProject.config.JwtService;
 import com.kanban.kanbanProject.dto.UserLoginDTO;
 import com.kanban.kanbanProject.entity.Users;
 import com.kanban.kanbanProject.exceptions.IncorrectDetails;
@@ -19,6 +20,9 @@ public class LoginService {
     @Autowired
     UsersRepo usersRepo;
 
+    @Autowired
+    JwtService jwtService;
+
     public ResponseEntity<?> login(UserLoginDTO userLoginDTO) {
 
         Optional<Users> userExists = usersRepo.findByEmailId(userLoginDTO.getEmailId());
@@ -37,7 +41,8 @@ public class LoginService {
             throw new UserNotFoundException("Invalid credentials");
         }
 
-        return ResponseEntity.ok("Password Match, welcome " + user.getEmailId());
+        String token = jwtService.generateToken(user.getEmailId());
+        return ResponseEntity.ok(token); // Return Token once user successfully logs in
     }
 
     public ResponseEntity<?> register(UserLoginDTO userLoginDTO) throws Exception {
