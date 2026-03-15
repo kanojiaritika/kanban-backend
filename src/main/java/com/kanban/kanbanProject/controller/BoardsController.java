@@ -14,9 +14,9 @@ public class BoardsController {
     @Autowired
     private BoardsService boardsService;
 
-    @PostMapping("/boards/{userId}")
-    public void createBoard(@RequestBody BoardDTO boardDTO, @PathVariable Long userId) {
-        boardsService.createBoard(boardDTO, userId);
+    @PostMapping("/boards")
+    public void createBoard(@RequestBody BoardDTO boardDTO) {
+        boardsService.createBoard(boardDTO);
     }
 
     @PutMapping("/boards/{userId}/{boardId}")

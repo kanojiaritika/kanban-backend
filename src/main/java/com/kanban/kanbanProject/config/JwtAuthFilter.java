@@ -29,7 +29,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             System.out.println("Authenticated User : " + email);
         }
 
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(request, response); // doFilter function is for 'continue your filtering work with next filters in the chain'
     }
 
 }

@@ -8,6 +8,7 @@ import com.kanban.kanbanProject.exceptions.UserNotFoundException;
 import com.kanban.kanbanProject.repository.BoardsRepo;
 import com.kanban.kanbanProject.repository.UsersRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,12 +25,17 @@ public class BoardsService {
     @Autowired
     private UsersRepo usersRepo;
 
-    public void createBoard(BoardDTO boardDTO, Long userId) {
+    public void createBoard(BoardDTO boardDTO) {
 
-        Optional<Users> userExists = usersRepo.findById(userId);
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        Optional<Users> userExists = usersRepo.findByEmailId(email);
 
         if (userExists.isEmpty()) {
-            throw new UserNotFoundException("User with id " + userId + " not found.");
+            throw new UserNotFoundException("User with id " + email + " not found.");
         }
 
         validateBoard(boardDTO);
