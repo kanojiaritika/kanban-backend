@@ -50,37 +50,55 @@ public class BoardsService {
 
     }
 
-    public void updateBoard(BoardDTO boardDTO, Long userId, Long boardId) {
+    public void updateBoard(BoardDTO boardDTO, Long boardId) {
 
-        Boards board = boardsRepo.findByUsersIdAndId(userId, boardId);
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        Users user = usersRepo.findByEmailId(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        Boards board = boardsRepo.findByUsersIdAndId(user.getId(), boardId);
 
         if (board == null) {
-            throw new UserNotFoundException("Board id " + boardId + " for user with id " + userId + " not found.");
+            throw new RuntimeException("Board not found for this user");
         }
 
         board.setTitle(boardDTO.getTitle());
-        board.setCreatedOn(LocalDateTime.now());
         board.setTasks(boardDTO.getTasks());
 
         boardsRepo.save(board);
     }
 
-    public List<Boards> getAllBoards(Long userId) {
+    public List<Boards> getAllBoards() {
 
-        Optional<Users> userExists = usersRepo.findById(userId);
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
 
-        if (userExists.isEmpty()) {
-            throw new UserNotFoundException("User with id " + userId + " not found.");
-        }
+        Users user = usersRepo.findByEmailId(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        return boardsRepo.getAllBoardsByUsersId(userId);
-
+        return boardsRepo.getAllBoardsByUsersId(user.getId());
     }
 
-    public void deleteBoard(Long userId, Long boardId) {
-        Boards board = boardsRepo.findByUsersIdAndId(userId, boardId);
+    public void deleteBoard(Long boardId) {
+
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        Users user = usersRepo.findByEmailId(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        Boards board = boardsRepo.findByUsersIdAndId(user.getId(), boardId);
+
         if (board == null) {
-            throw new UserNotFoundException("Board id " + boardId + " for user with id " + userId + " not found.");
+            throw new UserNotFoundException("Board id " + boardId + " for user with id " + user.getId() + " not found.");
         }
 
         boardsRepo.delete(board);

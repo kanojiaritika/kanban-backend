@@ -19,25 +19,23 @@ public class BoardsController {
         boardsService.createBoard(boardDTO);
     }
 
-    @PutMapping("/boards/{userId}/{boardId}")
+    @PutMapping("/boards/{boardId}")
     public void updateBoard(@RequestBody BoardDTO boardDTO,
-                            @PathVariable Long userId,
                             @PathVariable Long boardId) {
 
-        boardsService.updateBoard(boardDTO, userId, boardId);
+        boardsService.updateBoard(boardDTO, boardId);
 
     }
 
-    @DeleteMapping("/boards/{userId}/{boardId}")
-    public void deleteBoard(@PathVariable Long userId,
-                            @PathVariable Long boardId) {
+    @DeleteMapping("/boards/{boardId}")
+    public void deleteBoard(@PathVariable Long boardId) {
 
-        boardsService.deleteBoard(userId, boardId);
+        boardsService.deleteBoard(boardId);
 
     }
 
     @GetMapping("/boards/{userId}")
-    public List<Boards> getAllBoards(@PathVariable Long userId) {
-        return boardsService.getAllBoards(userId);
+    public List<Boards> getAllBoards() {
+        return boardsService.getAllBoards();
     }
 }
