@@ -126,4 +126,29 @@ public class TaskService {
         boardDTO.setTasks(taskDTOList);
         return ResponseEntity.ok(boardDTO);
     }
+
+    // Get Task by taskId and boardId
+    public ResponseEntity<?>  getTaskById(Long boardId, Long taskId) {
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        Users user = userRepo.findByEmailId(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Boards existingBoard = Optional.ofNullable(
+                boardRepo.findByUsersIdAndId(user.getId(), boardId)
+        ).orElseThrow(() -> new RuntimeException("Board not found"));
+
+        Tasks existingTask = taskRepo.findByIdAndBoardsId(taskId, existingBoard.getId())
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        TaskDTO taskDTO = new TaskDTO();
+        taskDTO.setTitle(existingTask.getTitle());
+        taskDTO.setContent(existingTask.getContent());
+
+        return ResponseEntity.ok(taskDTO);
+
+    }
 }

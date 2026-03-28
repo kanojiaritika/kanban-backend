@@ -29,4 +29,10 @@ public class TaskController {
     public ResponseEntity<?> getTasks(@PathVariable Long boardId) {
         return taskService.getAllTasks(boardId);
     }
+
+    @GetMapping("/tasks/{boardId}/{taskId}")
+    public ResponseEntity<?> getTask(@PathVariable Long boardId,  @PathVariable Long taskId) {
+
+        return taskService.getTaskById(boardId, taskId);
+    }
 }
