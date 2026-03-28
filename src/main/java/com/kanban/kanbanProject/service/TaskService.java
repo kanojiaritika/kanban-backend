@@ -2,6 +2,7 @@ package com.kanban.kanbanProject.service;
 
 import com.kanban.kanbanProject.TaskStatus;
 import com.kanban.kanbanProject.dto.TaskDTO;
+import com.kanban.kanbanProject.dto.TaskDTOResponse;
 import com.kanban.kanbanProject.entity.Boards;
 import com.kanban.kanbanProject.entity.Tasks;
 import com.kanban.kanbanProject.entity.Users;
@@ -84,6 +85,14 @@ public class TaskService {
 
         taskRepo.save(existingTask);
 
-        return ResponseEntity.ok(existingTask);
+        TaskDTOResponse response = new TaskDTOResponse();
+        response.setId(existingTask.getId());
+        response.setTitle(existingTask.getTitle());
+        response.setContent(existingTask.getContent());
+        response.setStatus(existingTask.getStatus());
+        response.setCreatedOn(existingTask.getCreatedOn());
+        response.setUpdatedOn(existingTask.getUpdatedOn());
+
+        return ResponseEntity.ok(response);
     }
 }
