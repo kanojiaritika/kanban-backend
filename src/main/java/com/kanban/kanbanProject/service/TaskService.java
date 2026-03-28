@@ -67,8 +67,7 @@ public class TaskService {
         Users user = userRepo.findByEmailId(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Boards existingBoard = Optional.ofNullable(
-                boardRepo.findByUsersIdAndId(user.getId(), boardId)
+        Boards existingBoard = Optional.ofNullable(boardRepo.findByUsersIdAndId(user.getId(), boardId)
         ).orElseThrow(() -> new RuntimeException("Board not found"));
 
         Tasks existingTask = taskRepo.findByIdAndBoardsId(taskId, existingBoard.getId())
@@ -107,8 +106,7 @@ public class TaskService {
         Users user = userRepo.findByEmailId(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Boards existingBoard = Optional.ofNullable(
-                boardRepo.findByUsersIdAndId(user.getId(), boardId)
+        Boards existingBoard = Optional.ofNullable(boardRepo.findByUsersIdAndId(user.getId(), boardId)
         ).orElseThrow(() -> new RuntimeException("Board not found"));
 
         BoardDTO boardDTO = new BoardDTO();
@@ -137,8 +135,7 @@ public class TaskService {
         Users user = userRepo.findByEmailId(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Boards existingBoard = Optional.ofNullable(
-                boardRepo.findByUsersIdAndId(user.getId(), boardId)
+        Boards existingBoard = Optional.ofNullable(boardRepo.findByUsersIdAndId(user.getId(), boardId)
         ).orElseThrow(() -> new RuntimeException("Board not found"));
 
         Tasks existingTask = taskRepo.findByIdAndBoardsId(taskId, existingBoard.getId())
@@ -149,6 +146,51 @@ public class TaskService {
         taskDTO.setContent(existingTask.getContent());
 
         return ResponseEntity.ok(taskDTO);
+
+    }
+
+    // Delete Task By taskId and boardId
+    public void deleteTask(Long boardId, Long taskId) {
+
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        Users user = userRepo.findByEmailId(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Boards existingBoard = Optional.ofNullable(boardRepo.findByUsersIdAndId(user.getId(), boardId)
+        ).orElseThrow(() -> new RuntimeException("Board not found"));
+
+        Tasks existingTask = taskRepo.findByIdAndBoardsId(taskId, existingBoard.getId())
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        taskRepo.deleteById(existingTask.getId());
+
+    }
+
+    // Status Change for a task
+    public void updateTaskStatus(Long boardId, Long taskId, TaskStatus taskStatus) {
+
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        Users user = userRepo.findByEmailId(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Boards existingBoard = Optional.ofNullable(boardRepo.findByUsersIdAndId(user.getId(), boardId)
+        ).orElseThrow(() -> new RuntimeException("Board not found"));
+
+        Tasks existingTask = taskRepo.findByIdAndBoardsId(taskId, existingBoard.getId())
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        existingTask.setStatus(taskStatus);
+        existingTask.setUpdatedOn(LocalDateTime.now());
+
+        taskRepo.save(existingTask);
 
     }
 }

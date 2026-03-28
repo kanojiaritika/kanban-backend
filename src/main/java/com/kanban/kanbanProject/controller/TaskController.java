@@ -1,5 +1,6 @@
 package com.kanban.kanbanProject.controller;
 
+import com.kanban.kanbanProject.TaskStatus;
 import com.kanban.kanbanProject.dto.TaskDTO;
 import com.kanban.kanbanProject.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,5 +35,15 @@ public class TaskController {
     public ResponseEntity<?> getTask(@PathVariable Long boardId,  @PathVariable Long taskId) {
 
         return taskService.getTaskById(boardId, taskId);
+    }
+
+    @DeleteMapping("/tasks/{boardId}/{taskId}")
+    public void deleteTask(@PathVariable Long boardId,  @PathVariable Long taskId) {
+        taskService.deleteTask(boardId, taskId);
+    }
+
+    @PutMapping("/tasks/status/{boardId}/{taskId}")
+    public void updateStatus(@PathVariable Long boardId,  @PathVariable Long taskId, @RequestParam TaskStatus status) {
+        taskService.updateTaskStatus(boardId, taskId, status);
     }
 }
