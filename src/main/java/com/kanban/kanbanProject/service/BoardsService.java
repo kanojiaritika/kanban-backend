@@ -72,8 +72,13 @@ public class BoardsService {
             throw new RuntimeException("Board not found for this user");
         }
 
-        board.setTitle(boardDTO.getTitle());
-        board.setTasks(mapToTaskEntities(boardDTO.getTasks()));
+        if (boardDTO.getTitle() != null && !boardDTO.getTitle().isEmpty()) {
+            board.setTitle(boardDTO.getTitle());
+        }
+
+        if (boardDTO.getTasks() != null && !boardDTO.getTasks().isEmpty()) {
+            board.setTasks(mapToTaskEntities(boardDTO.getTasks()));
+        }
 
         boardsRepo.save(board);
     }

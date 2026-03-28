@@ -24,4 +24,9 @@ public class TaskController {
                                         @RequestBody TaskDTO taskDTO) {
         return taskService.updateTask(taskId, boardId, taskDTO);
     }
+
+    @GetMapping("/tasks/{boardId}")
+    public ResponseEntity<?> getTasks(@PathVariable Long boardId) {
+        return taskService.getAllTasks(boardId);
+    }
 }
