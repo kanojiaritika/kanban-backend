@@ -35,7 +35,7 @@ public class BoardsController {
     }
 
     @GetMapping("/boards/{userId}")
-    public List<Boards> getAllBoards() {
+    public List<BoardDTO> getAllBoards() {
         return boardsService.getAllBoards();
     }
 }

@@ -1,13 +1,17 @@
 package com.kanban.kanbanProject.service;
 
+import com.kanban.kanbanProject.TaskStatus;
 import com.kanban.kanbanProject.dto.BoardDTO;
+import com.kanban.kanbanProject.dto.TaskDTO;
 import com.kanban.kanbanProject.entity.Boards;
+import com.kanban.kanbanProject.entity.Tasks;
 import com.kanban.kanbanProject.entity.Users;
 import com.kanban.kanbanProject.exceptions.IncorrectDetails;
 import com.kanban.kanbanProject.exceptions.UserNotFoundException;
 import com.kanban.kanbanProject.repository.BoardsRepo;
 import com.kanban.kanbanProject.repository.UsersRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +29,7 @@ public class BoardsService {
     @Autowired
     private UsersRepo usersRepo;
 
-    public void createBoard(BoardDTO boardDTO) {
+    public ResponseEntity<?> createBoard(BoardDTO boardDTO) {
 
         String email = SecurityContextHolder
                 .getContext()
@@ -43,10 +47,12 @@ public class BoardsService {
         Boards boards = new Boards();
         boards.setTitle(boardDTO.getTitle());
         boards.setCreatedOn(LocalDateTime.now());
-        boards.setTasks(boardDTO.getTasks());
+        boards.setTasks(mapToTaskEntities(boardDTO.getTasks()));
         boards.setUsers(userExists.get());
 
         boardsRepo.save(boards);
+
+        return ResponseEntity.ok(boards.getId());
 
     }
 
@@ -67,22 +73,27 @@ public class BoardsService {
         }
 
         board.setTitle(boardDTO.getTitle());
-        board.setTasks(boardDTO.getTasks());
+        board.setTasks(mapToTaskEntities(boardDTO.getTasks()));
 
         boardsRepo.save(board);
     }
 
-    public List<Boards> getAllBoards() {
+    public List<BoardDTO> getAllBoards() {
 
         String email = SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getName();
 
-        Users user = usersRepo.findByEmailId(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        Users user = usersRepo.findByEmailId(email).orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        return boardsRepo.getAllBoardsByUsersId(user.getId());
+        List<Boards> boards = boardsRepo.getAllBoardsByUsersId(user.getId());
+
+        return boards.stream()
+                .map(this::mapToBoardDTO)
+                .toList();
+
+
     }
 
     public void deleteBoard(Long boardId) {
@@ -108,5 +119,40 @@ public class BoardsService {
         if (boardDTO.getTitle() == null || boardDTO.getTitle().trim().isEmpty()) {
             throw new IncorrectDetails("Title cannot be empty.");
         }
+    }
+
+    // Map DTO TO Entity
+    private List<Tasks> mapToTaskEntities(List<TaskDTO> taskDTOS) {
+        return taskDTOS.stream().map(dto -> {
+            Tasks task = new Tasks();
+            task.setTitle(dto.getTitle());
+            task.setContent(dto.getContent());
+            return task;
+        }).toList();
+    }
+
+    // Map Task Entity to Task DTO
+    private TaskDTO mapToTaskDTO(Tasks task) {
+        TaskDTO dto = new TaskDTO();
+        dto.setTitle(task.getTitle());
+        dto.setContent(task.getContent());
+        return dto;
+    }
+
+    // Map Board Entity to Board DTO
+    private BoardDTO mapToBoardDTO(Boards board) {
+        BoardDTO dto = new BoardDTO();
+        dto.setId(board.getId());
+        dto.setTitle(board.getTitle());
+        dto.setCreatedAt(board.getCreatedOn());
+
+        List<TaskDTO> taskDTOs = board.getTasks()
+                .stream()
+                .map(this::mapToTaskDTO)
+                .toList();
+
+        dto.setTasks(taskDTOs);
+
+        return dto;
     }
 }

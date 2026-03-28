@@ -29,5 +29,4 @@ public class Tasks {
     @JoinColumn(name = "boards_id", nullable = false)
     private Boards boards;
 
-
 }
