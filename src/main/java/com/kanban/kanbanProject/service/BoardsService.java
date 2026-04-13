@@ -1,6 +1,5 @@
 package com.kanban.kanbanProject.service;
 
-import com.kanban.kanbanProject.TaskStatus;
 import com.kanban.kanbanProject.dto.BoardDTO;
 import com.kanban.kanbanProject.dto.TaskDTO;
 import com.kanban.kanbanProject.entity.Boards;

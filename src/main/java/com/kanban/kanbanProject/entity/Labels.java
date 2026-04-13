@@ -3,11 +3,9 @@ package com.kanban.kanbanProject.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Data
-public class Columns {
+public class Labels {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,9 +13,7 @@ public class Columns {
 
     private String name;
 
-    private Integer position;
-
-    private LocalDateTime createdAt;
+    private String color;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
