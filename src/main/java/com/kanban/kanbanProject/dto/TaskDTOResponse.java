@@ -1,6 +1,6 @@
 package com.kanban.kanbanProject.dto;
 
-import com.kanban.kanbanProject.TaskStatus;
+import com.kanban.kanbanProject.enums.TaskStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;

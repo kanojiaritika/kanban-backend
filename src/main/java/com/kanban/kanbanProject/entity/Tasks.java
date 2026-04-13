@@ -1,6 +1,6 @@
 package com.kanban.kanbanProject.entity;
 
-import com.kanban.kanbanProject.TaskStatus;
+import com.kanban.kanbanProject.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 

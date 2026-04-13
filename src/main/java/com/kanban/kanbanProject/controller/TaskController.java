@@ -1,6 +1,6 @@
 package com.kanban.kanbanProject.controller;
 
-import com.kanban.kanbanProject.TaskStatus;
+import com.kanban.kanbanProject.enums.TaskStatus;
 import com.kanban.kanbanProject.dto.TaskDTO;
 import com.kanban.kanbanProject.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
