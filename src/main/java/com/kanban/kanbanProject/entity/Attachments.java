@@ -14,8 +14,6 @@ public class Attachments {
 
     private Long id;
 
-    private String filename;
-
     private String filePath;
 
     private LocalDateTime uploadedAt;

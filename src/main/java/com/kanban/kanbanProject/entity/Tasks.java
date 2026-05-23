@@ -26,7 +26,7 @@ public class Tasks {
     private TaskStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "boards_id", nullable = false)
-    private Boards boards;
+    @JoinColumn(name = "columns_id")
+    private Columns column;
 
 }

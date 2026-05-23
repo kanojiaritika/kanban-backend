@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Data
@@ -19,7 +20,10 @@ public class Columns {
 
     private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id")
+    @ManyToOne
+    @JoinColumn(name = "boards_id", referencedColumnName = "id")
     private Boards board;
+
+    @OneToMany(mappedBy = "column")
+    private Set<Tasks> tasks;
 }
