@@ -25,13 +25,7 @@ public class Users {
 
     private String password;
 
-    // Owning side
     @ManyToMany
-    @JoinTable(
-            name = "users_boards",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "board_id")
-    )
     private Set<Boards> boards = new HashSet<>();
 
 }

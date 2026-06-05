@@ -10,8 +10,4 @@ import java.util.Optional;
 @Repository
 public interface BoardsRepo extends JpaRepository<Boards, Long> {
 
-    List<Boards> getAllBoardsByUsersId(Long id);
-
-    Boards findByUsersIdAndId(Long userId, Long Id);
-
 }

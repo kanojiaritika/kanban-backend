@@ -27,8 +27,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handleRuntime(RuntimeException ex) {
+
+        ex.printStackTrace();
+
         return ResponseEntity.status(400)
-                .body(Map.of("message", "Something went wrong"));
+                .body(Map.of(
+                        "message", "Something went wrong",
+                        "error", ex.getMessage()
+                ));
     }
 
     @ExceptionHandler(Exception.class)
