@@ -13,7 +13,7 @@ public class JWTService {
 
     private static final String secretKey = "my_secret_key_harry_potter_and_the_chamber_of_secrets_of_kanban_applications";
 
-    private Key signKey() {
+    private SecretKey signKey() {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
