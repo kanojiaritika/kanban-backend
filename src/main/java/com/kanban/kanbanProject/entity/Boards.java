@@ -21,17 +21,6 @@ public class Boards {
 
     private LocalDateTime createdOn;
 
-    @ManyToMany(mappedBy = "boards")
-    private Set<Users> users = new HashSet<>();
-    // mappedBy = "boards" tells Hibernate that this relationship
-    // is already mapped and managed by the 'boards' field
-    // inside the Users entity.
-    //
-    // So Hibernate:
-    // - does not create another join table
-    // - does not treat this as a separate relationship
-    // - reuses the mapping defined on the owning side
-
     @OneToMany(mappedBy = "board")
     private Set<Columns> columns;
 

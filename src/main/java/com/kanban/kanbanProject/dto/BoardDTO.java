@@ -11,6 +11,5 @@ public class BoardDTO {
     private Long id;
     private String title;
     private LocalDateTime createdAt;
-    private List<TaskDTO> tasks;
 
 }

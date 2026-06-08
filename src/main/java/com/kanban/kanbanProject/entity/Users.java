@@ -21,14 +21,6 @@ public class Users implements UserDetails {
     private String emailId;
     private String password;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_boards",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "board_id")
-    )
-    private Set<Boards> boards = new HashSet<>();
-
     // --- UserDetails contract ---
 
     @Override
