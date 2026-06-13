@@ -41,6 +41,7 @@ public class BoardsService {
         Boards board = new Boards();
         board.setTitle(boardDTO.getTitle());
         board.setCreatedOn(LocalDateTime.now());
+        board.setUpdatedOn(LocalDateTime.now());
         boardsRepo.save(board);
 
         // Create Board Members object (Which board belongs to which user and its role)
@@ -78,7 +79,7 @@ public class BoardsService {
     }
 
     // Update title (only OWNER or ADMIN)
-    public Boards updateBoard(Long boardId, String newTitle, Users requestingUser) {
+    public Boards updateBoard(Long boardId, BoardDTO boardDTO, Users requestingUser) {
         Boards board = boardsRepo.findById(boardId)
                 .orElseThrow(() -> new RuntimeException("Board not found"));
 
@@ -90,7 +91,12 @@ public class BoardsService {
             throw new RuntimeException("Only OWNER or ADMIN can update board");
         }
 
-        board.setTitle(newTitle);
+        if (boardDTO.getTitle().equals("")) {
+            throw new RuntimeException("Please enter title.");
+        }
+
+        board.setTitle(board.getTitle());
+        board.setUpdatedOn(LocalDateTime.now());
         return boardsRepo.save(board);
     }
 

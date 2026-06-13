@@ -39,9 +39,9 @@ public class BoardsController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Boards> updateBoard(@PathVariable Long id,
-                                              @RequestParam String title,
+                                              @RequestBody BoardDTO boardDTO,
                                               @AuthenticationPrincipal Users user) {
-        return ResponseEntity.ok(boardsService.updateBoard(id, title, user));
+        return ResponseEntity.ok(boardsService.updateBoard(id, boardDTO, user));
     }
 
     @DeleteMapping("/{id}")

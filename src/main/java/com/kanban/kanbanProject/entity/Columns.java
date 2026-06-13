@@ -23,7 +23,4 @@ public class Columns {
     @ManyToOne
     @JoinColumn(name = "boards_id", referencedColumnName = "id")
     private Boards board;
-
-    @OneToMany(mappedBy = "column")
-    private Set<Tasks> tasks;
 }
