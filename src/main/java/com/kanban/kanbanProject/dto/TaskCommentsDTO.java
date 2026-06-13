@@ -10,4 +10,5 @@ public class TaskCommentsDTO {
     private String comment;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String authorName;
 }
