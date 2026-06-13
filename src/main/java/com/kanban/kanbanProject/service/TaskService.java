@@ -42,6 +42,7 @@ public class TaskService {
         task.setContent(taskDTO.getContent());
         task.setStatus(taskDTO.getStatus());
         task.setCreatedOn(LocalDateTime.now());
+        task.setCreatedBy(user);
         task.setColumn(column);
 
         tasksRepo.save(task);
@@ -95,6 +96,7 @@ public class TaskService {
 
     // Delete task by ID
     public void deleteTask(Long taskId, Users user) {
+
         Tasks task = tasksRepo.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
@@ -102,6 +104,14 @@ public class TaskService {
 
         BoardMembers member = boardMembersRepo.findByBoardAndUser(board, user)
                 .orElseThrow(() -> new RuntimeException("Not a board member. Access denied"));
+
+        // Check if user has created the task or is ADMIN or OWNER
+        boolean isCreator = task.getCreatedBy().getId().equals(user.getId());
+        boolean isAdminOrOwner = member.getRole().equals(BoardRole.ADMIN)
+                || member.getRole().equals(BoardRole.OWNER);
+        if (!isCreator && !isAdminOrOwner) {
+            throw new RuntimeException("Not authorized to delete");
+        }
 
         BoardRole role = member.getRole();
         if (!role.equals(BoardRole.OWNER) && !role.equals(BoardRole.ADMIN)) {

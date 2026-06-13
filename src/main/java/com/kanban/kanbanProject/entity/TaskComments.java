@@ -18,6 +18,8 @@ public class TaskComments {
 
     private LocalDateTime createdAt;
 
+    private LocalDateTime updatedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id")
     private Tasks task;

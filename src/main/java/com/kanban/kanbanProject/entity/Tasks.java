@@ -22,11 +22,17 @@ public class Tasks {
 
     private LocalDateTime updatedOn;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private Users createdBy;
+
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
     @ManyToOne
     @JoinColumn(name = "columns_id")
     private Columns column;
+
+
 
 }
