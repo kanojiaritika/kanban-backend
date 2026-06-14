@@ -5,11 +5,13 @@ import com.kanban.kanbanProject.entity.BoardMembers;
 import com.kanban.kanbanProject.entity.Boards;
 import com.kanban.kanbanProject.entity.Users;
 import com.kanban.kanbanProject.enums.BoardRole;
+import com.kanban.kanbanProject.exceptions.KanbanException;
 import com.kanban.kanbanProject.repository.BoardMembersRepo;
 import com.kanban.kanbanProject.repository.BoardsRepo;
 import com.kanban.kanbanProject.repository.UsersRepo;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -69,11 +71,11 @@ public class BoardsService {
     // Get Board by ID
     public Boards getBoard(Long boardId, Users requestingUser) {
         Boards board = boardsRepo.findById(boardId)
-                .orElseThrow(() -> new RuntimeException("Board not found"));
+                .orElseThrow(() -> new KanbanException("Board not found", HttpStatus.NOT_FOUND));
 
         // Check membership
         boardMembersRepo.findByBoardAndUser(board, requestingUser)
-                .orElseThrow(() -> new RuntimeException("Access denied"));
+                .orElseThrow(() -> new KanbanException("Access denied", HttpStatus.FORBIDDEN));
 
         return board;
     }
@@ -81,18 +83,18 @@ public class BoardsService {
     // Update title (only OWNER or ADMIN)
     public Boards updateBoard(Long boardId, BoardDTO boardDTO, Users requestingUser) {
         Boards board = boardsRepo.findById(boardId)
-                .orElseThrow(() -> new RuntimeException("Board not found"));
+                .orElseThrow(() -> new KanbanException("Board not found", HttpStatus.NOT_FOUND));
 
         BoardMembers membership = boardMembersRepo
                 .findByBoardAndUser(board, requestingUser)
-                .orElseThrow(() -> new RuntimeException("Access denied"));
+                .orElseThrow(() -> new KanbanException("Access denied", HttpStatus.FORBIDDEN));
 
         if (membership.getRole() == BoardRole.MEMBER) {
-            throw new RuntimeException("Only OWNER or ADMIN can update board");
+            throw new KanbanException("Only OWNER or ADMIN can update board", HttpStatus.FORBIDDEN);
         }
 
         if (boardDTO.getTitle().equals("")) {
-            throw new RuntimeException("Please enter title.");
+            throw new KanbanException("Please enter title.", HttpStatus.BAD_REQUEST);
         }
 
         board.setTitle(board.getTitle());
@@ -103,14 +105,14 @@ public class BoardsService {
     // Delete board (only OWNER)
     public void deleteBoard(Long boardId, Users requestingUser) {
         Boards board = boardsRepo.findById(boardId)
-                .orElseThrow(() -> new RuntimeException("Board not found"));
+                .orElseThrow(() -> new KanbanException("Board not found", HttpStatus.NOT_FOUND));
 
         BoardMembers membership = boardMembersRepo
                 .findByBoardAndUser(board, requestingUser)
-                .orElseThrow(() -> new RuntimeException("Access denied"));
+                .orElseThrow(() -> new KanbanException("Access denied", HttpStatus.FORBIDDEN));
 
         if (membership.getRole() != BoardRole.OWNER) {
-            throw new RuntimeException("Only OWNER can delete a board");
+            throw new KanbanException("Only OWNER can delete a board", HttpStatus.FORBIDDEN);
         }
 
         boardsRepo.delete(board);
@@ -120,27 +122,27 @@ public class BoardsService {
     public BoardMembers addMember(Long boardId, Long newMemberId,
                                   BoardRole role, Users requestingUser) {
         Boards board = boardsRepo.findById(boardId)
-                .orElseThrow(() -> new RuntimeException("Board not found."));
+                .orElseThrow(() -> new KanbanException("Board not found.", HttpStatus.NOT_FOUND));
 
         BoardMembers requestingMembership = boardMembersRepo
                 .findByBoardAndUser(board, requestingUser)
-                .orElseThrow(() -> new RuntimeException("User does not belong to this board."));
+                .orElseThrow(() -> new KanbanException("User does not belong to this board.", HttpStatus.NOT_FOUND));
 
         if (requestingMembership.getRole() == BoardRole.MEMBER) {
-            throw new RuntimeException("Only OWNER or ADMIN can add members.");
+            throw new KanbanException("Only OWNER or ADMIN can add members.", HttpStatus.FORBIDDEN);
         }
 
         Users newMember = usersRepo.findById(newMemberId)
-                .orElseThrow(() -> new RuntimeException("User not found."));
+                .orElseThrow(() -> new KanbanException("User not found.", HttpStatus.NOT_FOUND));
 
         // Prevent duplicate membership
         if (boardMembersRepo.findByBoardAndUser(board, newMember).isPresent()) {
-            throw new RuntimeException("User is already a member of this board.");
+            throw new KanbanException("User is already a member of this board.", HttpStatus.FORBIDDEN);
         }
 
         // Prevent a non-OWNER from assigning OWNER role
         if (role == BoardRole.OWNER && requestingMembership.getRole() != BoardRole.OWNER) {
-            throw new RuntimeException("Only OWNER can assign the OWNER role.");
+            throw new KanbanException("Only OWNER can assign the OWNER role.", HttpStatus.FORBIDDEN);
         }
 
         BoardMembers membership = new BoardMembers();

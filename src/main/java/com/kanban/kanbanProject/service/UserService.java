@@ -26,8 +26,6 @@ public class UserService {
         String hashedPassword = hashPassword(userDTO.getPassword());
         user.setPassword(hashedPassword);
 
-
-
         usersRepo.save(user);
     }
 

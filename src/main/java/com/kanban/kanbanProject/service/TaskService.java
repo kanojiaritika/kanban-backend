@@ -3,10 +3,12 @@ package com.kanban.kanbanProject.service;
 import com.kanban.kanbanProject.dto.TaskDTO;
 import com.kanban.kanbanProject.entity.*;
 import com.kanban.kanbanProject.enums.BoardRole;
+import com.kanban.kanbanProject.exceptions.KanbanException;
 import com.kanban.kanbanProject.repository.BoardMembersRepo;
 import com.kanban.kanbanProject.repository.ColumnsRepo;
 import com.kanban.kanbanProject.repository.TasksRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,13 +31,13 @@ public class TaskService {
 
         // Fetch column (which gives us board too)
         Columns column = columnsRepo.findById(columnId)
-                .orElseThrow(() -> new RuntimeException("Column not found"));
+                .orElseThrow(() -> new KanbanException("Column not found", HttpStatus.NOT_FOUND));
 
         Boards board = column.getBoard();
 
         // Check if user is a member of this board
         BoardMembers member = boardMembersRepo.findByBoardAndUser(board, user)
-                .orElseThrow(() -> new RuntimeException("Not a board member. Access denied"));
+                .orElseThrow(() -> new KanbanException("Not a board member. Access Denied.", HttpStatus.FORBIDDEN));
 
         Tasks task = new Tasks();
         task.setTitle(taskDTO.getTitle());
@@ -51,12 +53,12 @@ public class TaskService {
     // Update Task
     public void updateTask(Long taskId, TaskDTO taskDTO, Users user) {
         Tasks task = tasksRepo.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new KanbanException("Task not found", HttpStatus.NOT_FOUND));
 
         Boards board = task.getColumn().getBoard();
 
         boardMembersRepo.findByBoardAndUser(board, user)
-                .orElseThrow(() -> new RuntimeException("Not a board member. Access denied"));
+                .orElseThrow(() -> new KanbanException("Not a board member. Access Denied.", HttpStatus.FORBIDDEN));
 
         if (taskDTO.getTitle() != null) task.setTitle(taskDTO.getTitle());
         if (taskDTO.getContent() != null) task.setContent(taskDTO.getContent());
@@ -84,12 +86,12 @@ public class TaskService {
     // Get task by ID
     public TaskDTO getTaskById(Long taskId, Users user) {
         Tasks task = tasksRepo.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new KanbanException("Task not found", HttpStatus.NOT_FOUND));
 
         Boards board = task.getColumn().getBoard();
 
         boardMembersRepo.findByBoardAndUser(board, user)
-                .orElseThrow(() -> new RuntimeException("Not a board member. Access denied"));
+                .orElseThrow(() -> new KanbanException("Not a board member. Access Denied.", HttpStatus.FORBIDDEN));
 
         return toDTO(task);
     }
@@ -98,24 +100,24 @@ public class TaskService {
     public void deleteTask(Long taskId, Users user) {
 
         Tasks task = tasksRepo.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new KanbanException("Task not found", HttpStatus.NOT_FOUND));
 
         Boards board = task.getColumn().getBoard();
 
         BoardMembers member = boardMembersRepo.findByBoardAndUser(board, user)
-                .orElseThrow(() -> new RuntimeException("Not a board member. Access denied"));
+                .orElseThrow(() -> new KanbanException("Not a board member. Access Denied.", HttpStatus.FORBIDDEN));
 
         // Check if user has created the task or is ADMIN or OWNER
         boolean isCreator = task.getCreatedBy().getId().equals(user.getId());
         boolean isAdminOrOwner = member.getRole().equals(BoardRole.ADMIN)
                 || member.getRole().equals(BoardRole.OWNER);
         if (!isCreator && !isAdminOrOwner) {
-            throw new RuntimeException("Not authorized to delete");
+            throw new KanbanException("Not authorized to delete", HttpStatus.FORBIDDEN);
         }
 
         BoardRole role = member.getRole();
         if (!role.equals(BoardRole.OWNER) && !role.equals(BoardRole.ADMIN)) {
-            throw new RuntimeException("Only Owner or Admin can delete tasks");
+            throw new KanbanException("Only Owner or Admin can delete tasks", HttpStatus.FORBIDDEN);
         }
 
         tasksRepo.delete(task);

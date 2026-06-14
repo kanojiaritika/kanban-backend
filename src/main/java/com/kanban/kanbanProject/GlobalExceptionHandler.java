@@ -1,8 +1,7 @@
 package com.kanban.kanbanProject;
 
-import com.kanban.kanbanProject.exceptions.IncorrectDetails;
+import com.kanban.kanbanProject.exceptions.KanbanException;
 import com.kanban.kanbanProject.exceptions.UserNotFoundException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -13,33 +12,17 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<?> handleUserNotFoundException(UserNotFoundException exception) {
+    public ResponseEntity<?> handleUserNotFound(UserNotFoundException ex) {
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", exception.getMessage()));
-    }
-
-    @ExceptionHandler(IncorrectDetails.class)
-    public ResponseEntity<?> handleBadRequest(IncorrectDetails ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .status(404)
                 .body(Map.of("message", ex.getMessage()));
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleRuntime(RuntimeException ex) {
-
-        ex.printStackTrace();
-
-        return ResponseEntity.status(400)
-                .body(Map.of(
-                        "message", "Something went wrong",
-                        "error", ex.getMessage()
-                ));
+    @ExceptionHandler(KanbanException.class)
+    public ResponseEntity<?> handleKanbanException(KanbanException ex) {
+        return ResponseEntity
+                .status(ex.getStatus())
+                .body(Map.of("message", ex.getMessage()));
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleGeneral(Exception ex) {
-        return ResponseEntity.status(500)
-                .body(Map.of("message", "Internal server error"));
-    }
 }
