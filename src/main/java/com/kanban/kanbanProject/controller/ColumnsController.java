@@ -1,6 +1,7 @@
 package com.kanban.kanbanProject.controller;
 
 import com.kanban.kanbanProject.dto.ColumnDTO;
+import com.kanban.kanbanProject.entity.Columns;
 import com.kanban.kanbanProject.entity.Users;
 import com.kanban.kanbanProject.service.ColumnsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,11 @@ public class ColumnsController {
     private ColumnsService columnsService;
 
     @PostMapping("/{boardId}")
-    public void createColumn(@PathVariable Long boardId,
-                             @RequestBody ColumnDTO columnDTO,
-                             @AuthenticationPrincipal Users user) {
-        columnsService.createColumn(boardId, columnDTO, user);
+    public ResponseEntity<Columns> createColumn(@PathVariable Long boardId,
+                                                @RequestBody ColumnDTO columnDTO,
+                                                @AuthenticationPrincipal Users user) {
+        Columns column = columnsService.createColumn(boardId, columnDTO, user);
+        return ResponseEntity.ok(column);
     }
 
     @PutMapping("/{columnId}")
@@ -44,8 +46,9 @@ public class ColumnsController {
     }
 
     @DeleteMapping("/{columnId}")
-    public void deleteColumnById(@PathVariable Long columnId,
-                                 @AuthenticationPrincipal Users user) {
+    public ResponseEntity<String> deleteColumn(@PathVariable Long columnId,
+                                               @AuthenticationPrincipal Users user) {
         columnsService.deleteColumn(columnId, user);
+        return ResponseEntity.ok("Column deleted successfully");
     }
 }

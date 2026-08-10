@@ -4,6 +4,7 @@ import com.kanban.kanbanProject.enums.TaskStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class TaskDTO {
@@ -19,4 +20,6 @@ public class TaskDTO {
     private LocalDateTime updatedOn;
 
     private TaskStatus status;
+
+    private UserDTO userDTO;
 }

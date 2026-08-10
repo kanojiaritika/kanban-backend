@@ -10,6 +10,7 @@ import com.kanban.kanbanProject.repository.BoardsRepo;
 import com.kanban.kanbanProject.repository.ColumnsRepo;
 import com.kanban.kanbanProject.repository.TasksRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ColumnsService {
@@ -35,7 +35,7 @@ public class ColumnsService {
     private TasksRepo tasksRepo;
 
     // Create Column
-    public void createColumn(Long boardId, ColumnDTO columnDTO, Users user) {
+    public Columns createColumn(Long boardId, ColumnDTO columnDTO, Users user) {
 
         // Is user eligible to create column in this board
         // So check if user is ADMIN or OWNER of the board
@@ -51,14 +51,17 @@ public class ColumnsService {
             throw new KanbanException("Only Owner or Admin can create columns", HttpStatus.FORBIDDEN);
         }
 
+        Integer maxPosition = columnsRepo.findMaxPositionByBoard(board);
+
         Columns column = new Columns();
         column.setName(columnDTO.getName());
-        column.setPosition(columnDTO.getPosition());
+        column.setPosition(maxPosition == null ? 0 : maxPosition + 1);
         column.setCreatedAt(LocalDateTime.now());
-
         column.setBoard(board);
+
         columnsRepo.save(column);
 
+        return column;
     }
 
     // Update Column
@@ -123,17 +126,24 @@ public class ColumnsService {
     }
 
     public void deleteColumn(Long columnId, Users user) {
+        try {
+            Columns column = columnsRepo.findById(columnId)
+                    .orElseThrow(() -> new KanbanException("Column not found.", HttpStatus.NOT_FOUND));
 
-        Columns column = columnsRepo.findById(columnId)
-                .orElseThrow(() -> new KanbanException("Column not found.", HttpStatus.NOT_FOUND));
+            Boards board = column.getBoard();
 
-        Boards board = column.getBoard();
+            boardMembersRepo.findByBoardAndUser(board, user)
+                    .orElseThrow(() -> new KanbanException("Not a board member.", HttpStatus.FORBIDDEN));
 
-        boardMembersRepo.findByBoardAndUser(board, user)
-                .orElseThrow(() -> new KanbanException("Not a board member. Access Denied", HttpStatus.FORBIDDEN));
+            tasksRepo.deleteAllByColumn(column);
+            columnsRepo.delete(column);
 
-        columnsRepo.delete(column);
-
+        } catch (DataIntegrityViolationException e) {
+            throw new KanbanException(
+                    "Delete all tasks in this column first.",
+                    HttpStatus.BAD_REQUEST
+            );
+        }
     }
 
     // Map Entity to DTO
@@ -144,7 +154,7 @@ public class ColumnsService {
         dto.setPosition(column.getPosition());
         dto.setCreatedAt(column.getCreatedAt());
 
-        List<Tasks> tasks = tasksRepo.findByColumnId(column.getId());
+        List<Tasks> tasks = tasksRepo.findByColumnIdOrderByPositionAsc(column.getId());
         List<TaskDTO> taskDTOS = new ArrayList<>();
         for(Tasks task : tasks) {
             TaskDTO taskDto = new TaskDTO();

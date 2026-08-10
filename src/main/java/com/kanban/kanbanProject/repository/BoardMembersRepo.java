@@ -5,6 +5,8 @@ import com.kanban.kanbanProject.entity.Boards;
 import com.kanban.kanbanProject.entity.Users;
 import com.kanban.kanbanProject.enums.BoardRole;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,4 +24,23 @@ public interface BoardMembersRepo extends JpaRepository<BoardMembers, Long> {
 
     // Check if user has a specific role on a board
     Optional<BoardMembers> findByBoardAndUserAndRole(Boards board, Users user, BoardRole role);
+
+    void deleteAllByBoard(Boards board);
+
+    void deleteByUser(Users userToRemove);
+
+    List<BoardMembers> findByBoardId(Long boardId);
+
+    List<BoardMembers> findByUserAndIsFavorite(Users user, Boolean isFavorite);
+
+    @Query("""
+        SELECT bm
+        FROM BoardMembers bm
+        WHERE bm.user = :user
+          AND bm.lastOpenedAt IS NOT NULL
+          AND bm.board.isArchived = false
+        ORDER BY bm.lastOpenedAt DESC
+    """)
+    List<BoardMembers> findRecentlyOpened(@Param("user") Users user);
+
 }

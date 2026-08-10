@@ -18,6 +18,8 @@ public class Tasks {
 
     private String content;
 
+    private Integer position;
+
     private LocalDateTime createdOn;
 
     private LocalDateTime updatedOn;
@@ -33,6 +35,8 @@ public class Tasks {
     @JoinColumn(name = "columns_id")
     private Columns column;
 
-
+    @ManyToOne
+    @JoinColumn(name = "users_id")
+    private Users user;
 
 }

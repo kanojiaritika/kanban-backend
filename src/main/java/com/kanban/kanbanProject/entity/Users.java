@@ -21,6 +21,9 @@ public class Users implements UserDetails {
     private String emailId;
     private String password;
 
+    private String firstName;
+    private String lastName;
+
     // --- UserDetails contract ---
 
     @Override

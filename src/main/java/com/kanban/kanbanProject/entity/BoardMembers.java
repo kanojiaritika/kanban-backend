@@ -24,6 +24,10 @@ public class BoardMembers {
 
     private LocalDateTime updatedAt;
 
+    private Boolean isFavorite;
+
+    private LocalDateTime lastOpenedAt;
+
     // MANY members can belong to ONE board
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")

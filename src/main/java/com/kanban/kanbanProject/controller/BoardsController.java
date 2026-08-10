@@ -1,6 +1,7 @@
 package com.kanban.kanbanProject.controller;
 
 import com.kanban.kanbanProject.dto.BoardDTO;
+import com.kanban.kanbanProject.dto.BoardMemberDTO;
 import com.kanban.kanbanProject.entity.BoardMembers;
 import com.kanban.kanbanProject.entity.Boards;
 import com.kanban.kanbanProject.entity.Users;
@@ -27,14 +28,19 @@ public class BoardsController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Boards>> getMyBoards(@AuthenticationPrincipal Users user) {
+    public ResponseEntity<List<BoardDTO>> getMyBoards(@AuthenticationPrincipal Users user) {
         return ResponseEntity.ok(boardsService.getMyBoards(user));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Boards> getBoard(@PathVariable Long id,
+    public ResponseEntity<BoardDTO> getBoard(@PathVariable Long id,
                                            @AuthenticationPrincipal Users user) {
         return ResponseEntity.ok(boardsService.getBoard(id, user));
+    }
+
+    @GetMapping("/sharedBoards")
+    public ResponseEntity<List<BoardDTO>> getSharedBoards(@AuthenticationPrincipal Users user) {
+        return ResponseEntity.ok(boardsService.getSharedBoards(user));
     }
 
     @PutMapping("/{id}")
@@ -44,18 +50,77 @@ public class BoardsController {
         return ResponseEntity.ok(boardsService.updateBoard(id, boardDTO, user));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBoard(@PathVariable Long id,
-                                            @AuthenticationPrincipal Users user) {
-        boardsService.deleteBoard(id, user);
-        return ResponseEntity.noContent().build();
+    @PutMapping("/favorite/{boardId}")
+    public ResponseEntity<BoardDTO> makeBoardFavorite(
+            @PathVariable Long boardId,
+            @AuthenticationPrincipal Users currentUser) {
+        return ResponseEntity.ok(boardsService.makeBoardFavorite(boardId, currentUser));
     }
 
-    @PostMapping("/{id}/members")
+    @GetMapping("/favorites")
+    public ResponseEntity<List<BoardDTO>> getFavBoards(@AuthenticationPrincipal Users user) {
+        return ResponseEntity.ok(boardsService.getFavoriteBoards(user));
+    }
+
+    // Archive board
+    @PutMapping("/{boardId}/archive")
+    public ResponseEntity<Void> archiveBoard(
+            @PathVariable Long boardId,
+            @AuthenticationPrincipal Users currentUser) {
+
+        boardsService.archiveBoard(boardId, currentUser);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/archived")
+    public ResponseEntity<List<BoardDTO>> getArchivedBoards(@AuthenticationPrincipal Users currentUser) {
+
+        return ResponseEntity.ok(boardsService.getArchivedBoards(currentUser));
+    }
+
+    @PutMapping("/{boardId}/unarchive")
+    public ResponseEntity<Void> unarchiveBoard(
+            @PathVariable Long boardId,
+            @AuthenticationPrincipal Users currentUser) {
+
+        boardsService.unarchiveBoard(boardId, currentUser);
+
+        return ResponseEntity.ok().build();
+    }
+
+    // Get recently opened boards
+    @GetMapping("/recent")
+    public ResponseEntity<List<BoardDTO>> getRecentlyOpened(
+            @AuthenticationPrincipal Users currentUser) {
+
+        return ResponseEntity.ok(boardsService.getRecentlyOpened(currentUser));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteBoard(@PathVariable Long id,
+                                            @AuthenticationPrincipal Users user) {
+        boardsService.deleteBoard(id, user);
+        return ResponseEntity.ok("Board deleted");
+    }
+
+    @PostMapping("/member/{id}")
     public ResponseEntity<BoardMembers> addMember(@PathVariable Long id,
-                                                  @RequestParam Long userId,
+                                                  @RequestParam String emailId,
                                                   @RequestParam BoardRole role,
                                                   @AuthenticationPrincipal Users requestingUser) {
-        return ResponseEntity.ok(boardsService.addMember(id, userId, role, requestingUser));
+        return ResponseEntity.ok(boardsService.addMember(id, emailId, role, requestingUser));
     }
+
+    @DeleteMapping("/{boardId}/members")
+    public ResponseEntity<List<BoardMemberDTO>> removeMember(
+            @PathVariable Long boardId,
+            @RequestParam String emailId,
+            @AuthenticationPrincipal Users reqUser) {
+
+        List<BoardMemberDTO> members = boardsService.removeMember(boardId, emailId, reqUser);
+        return ResponseEntity.ok(members);
+    }
+
+
 }
